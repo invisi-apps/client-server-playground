@@ -13,10 +13,23 @@ io.on('connection', function (socket) {
         socket.emit('initGame', {newPlayerAllowed: true});
 
         socket.on('registerPlayer', (msg) => {
-            console.log(`New player details received ${msg.playerName}`);
             const playerDetails = gameState.setNewPlayerName(msg.playerName);
             console.log(`Player accepted. Name: ${playerDetails.playerName}, ID: ${playerDetails.id}`);
             socket.emit('registeredPlayer', {playerName: playerDetails.playerName, playerId: playerDetails.id});
+            const respondToChange = {
+                notify: () => {
+                    socket.emit('gamestate', {
+                        boardState: gameState.boardState,
+                        currentPlayers: gameState.currentPlayers
+                    });
+                }
+            };
+            gameState.register('change', respondToChange);
+            gameState.notifyAll();
+        });
+
+        socket.on('makeMove', (moveObj) => {
+            gameState.makeMove(moveObj);
         });
 
         socket.on('disconnect', () => {
