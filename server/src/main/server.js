@@ -48,7 +48,6 @@ require('dns').lookup(require('os').hostname(), function (err, add, fam) {
     console.log(`Server address: ${add}:${portToListenOn}`);
 });
 
-//Why choose 3360? I liked that it was the mysql port a bit mixed up :-);
 http.listen(portToListenOn, function () {
     console.log(`listening on *:${portToListenOn}`);
 });

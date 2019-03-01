@@ -1,4 +1,4 @@
-const lodash = require('lodash');
+const _ = require('lodash');
 const events = {};
 const boardState = {
     '0': ['', '', '', '', '', ''],
@@ -19,7 +19,7 @@ const checkHorizontal = () => {
         // this is wastefull as it will keep going to the top even if it knows there cant be any more
         for (let acrossIndex = 0; acrossIndex < 9; acrossIndex++) {
             const value = boardState[`${acrossIndex}`][downIndex];
-            if (lodash.isEmpty(value)) {
+            if (_.isEmpty(value)) {
                 currentVal = '';
                 countCurrentVal = 0;
             } else {
@@ -46,7 +46,7 @@ const checkVertical = () => {
         let countCurrentVal = 0;
         for (let downIndex = 5; downIndex > -1; downIndex--) {
             const value = boardState[`${acrossIndex}`][downIndex];
-            if (lodash.isEmpty(value)) {
+            if (_.isEmpty(value)) {
                 // we start checking at the bottom
                 //if there are no more above then we can short circuit this column
                 continue;
@@ -76,7 +76,7 @@ const checkDiagonal = () => {
         let diag = 0;
         for (let downIndex = 5; downIndex > -1; downIndex--) {
             const value = boardState[`${acrossIndex+diag}`][downIndex];
-            if (lodash.isEmpty(value)) {
+            if (_.isEmpty(value)) {
                 // we start checking at the bottom
                 //if there are no more above then we can short circuit this column
                 continue;
@@ -104,7 +104,7 @@ const checkDiagonal = () => {
         let diag = 0;
         for (let downIndex = 4; downIndex > -1; downIndex--) {
             const value = boardState[`${acrossIndex+diag}`][downIndex];
-            if (lodash.isEmpty(value)) {
+            if (_.isEmpty(value)) {
                 // we start checking at the bottom
                 //if there are no more above then we can short circuit this column
                 continue;
@@ -171,12 +171,12 @@ const currentPlayers = {
 };
 
 const newPlayersAllowed = () => {
-    return lodash.isEmpty(currentPlayers.player1) || lodash.isEmpty(currentPlayers.player2);
+    return _.isEmpty(currentPlayers.player1) || _.isEmpty(currentPlayers.player2);
 };
 
 const setNewPlayerName = (name) => {
     if (newPlayersAllowed()) {
-        if (lodash.isEmpty(currentPlayers.player1)) {
+        if (_.isEmpty(currentPlayers.player1)) {
             currentPlayers.player1 = {
                 playerName: name,
                 id: 1
@@ -209,7 +209,7 @@ const makeMove = ({playerId, columnId}) => {
     let validMove = false;
     for (let downIndex = 5; downIndex > -1; downIndex--) {
         const value = boardState[`${columnIndex}`][downIndex];
-        if (lodash.isEmpty(value)) {
+        if (_.isEmpty(value)) {
             boardState[`${columnIndex}`][downIndex] = valToMark;
             validMove = true;
             break;

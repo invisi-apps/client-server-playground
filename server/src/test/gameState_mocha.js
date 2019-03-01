@@ -6,7 +6,7 @@ describe('winning gamestates', function () {
 
     describe('diagonals', function () {
         it('should find winning lines up right from bottom', function () {
-            const gameState = require('../gameState').gameState;
+            const gameState = require('../main/gameState').gameState;
             gameState.setNewPlayerName('m');
             gameState.setNewPlayerName('j');
             gameState.boardState['0'][5]='x';
