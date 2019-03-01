@@ -3,7 +3,7 @@ const lodash = require('lodash');
 const render = (board) => {
     // clear the console
     console.log('\033c');
-    for (let downIndex = 0; downIndex <6; downIndex++) {
+    for (let downIndex = 0; downIndex < 6; downIndex++) {
         let rowDisplay = '';
         for (let acrossIndex = 0; acrossIndex < 9; acrossIndex++) {
 

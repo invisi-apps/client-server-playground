@@ -34,16 +34,23 @@ socket.on('registeredPlayer', (playerInfo) => {
     playerDetails = playerInfo;
 });
 
-socket.on('gamestate', ({currentPlayers, boardState, winner}) => {
+socket.on('gamestate', ({currentPlayers, boardState}) => {
     // get the current state of the board
-    if (currentPlayers.player2.id != undefined) {
+    if (!lodash.isUndefined(currentPlayers.player2.id)) {
         boardRenderer.render(boardState);
-        if (!lodash.isUndefined(winner)) {
+
+        if (currentPlayers.player1.isWinner) {
             console.log('We have a winner');
+            console.log(`Congratulations ${currentPlayers.player1.playerName}!`);
+            return;
+        } else if (currentPlayers.player2.isWinner) {
+            console.log('We have a winner');
+            console.log(`Congratulations ${currentPlayers.player2.playerName}!`);
             return;
         }
 
-        if (playerDetails.playerId === 1 ) {
+
+        if (playerDetails.playerId === 1) {
             if (currentPlayers.player1.nextMove) {
                 const readline = require('readline').createInterface({
                     input: process.stdin,
@@ -77,7 +84,7 @@ socket.on('gamestate', ({currentPlayers, boardState, winner}) => {
 });
 
 socket.on('disconnect', () => {
-    console.log('Connection with server lost, sorry but I must exit, you probably would have won...');
+    console.log('Connection with server lost');
     process.exit();
 });
 
