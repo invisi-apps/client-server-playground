@@ -1,5 +1,34 @@
 const _ = require('lodash');
+
+
+/*------------------------- Observability of the gamestate -----------------------------*/
 const events = {};
+const addEvent = (name) => {
+    if (typeof events[`${name}`] === "undefined") {
+        events[`${name}`] = [];
+    }
+};
+
+const register = (event, subscriber) => {
+    if (typeof subscriber === "object" && typeof subscriber.notify === 'function') {
+        console.log('adding subscriber');
+        addEvent(event);
+        events[`${event}`].push(subscriber);
+    }
+};
+
+const notify = (event, data) => {
+    let notifyEvents = events[`${event}`];
+    for (let e in notifyEvents) {
+        notifyEvents[e].notify(data);
+    }
+};
+
+const notifyAll = () => {
+    notify('change', {});
+};
+
+/*------------------------- Operations allowed gamestate -----------------------------*/
 const boardState = {
     '0': ['', '', '', '', '', ''],
     '1': ['', '', '', '', '', ''],
@@ -11,6 +40,12 @@ const boardState = {
     '7': ['', '', '', '', '', ''],
     '8': ['', '', '', '', '', '']
 };
+
+const currentPlayers = {
+    player1: {},
+    player2: {}
+};
+
 
 const checkHorizontal = () => {
     for (let downIndex = 5; downIndex > -1; downIndex--) {
@@ -49,7 +84,7 @@ const checkVertical = () => {
             if (_.isEmpty(value)) {
                 // we start checking at the bottom
                 //if there are no more above then we can short circuit this column
-                continue;
+                break;
             } else {
                 if (currentVal === value) {
                     countCurrentVal++;
@@ -68,18 +103,16 @@ const checkVertical = () => {
     }
 };
 
-const checkDiagonal = () => {
-    // bottom row going up right
-    for (let acrossIndex = 0; acrossIndex < 5; acrossIndex++) {
+const checkDiagonalUpRight = ({startAcross, endAcross, startDown, endDown}) => {
+    for (let acrossIndex = startAcross; acrossIndex < endAcross; acrossIndex++) {
         let currentVal = '';
         let countCurrentVal = 0;
         let diag = 0;
-        for (let downIndex = 5; downIndex > -1; downIndex--) {
+        for (let downIndex = startDown; downIndex > endDown; downIndex--) {
             const value = boardState[`${acrossIndex+diag}`][downIndex];
             if (_.isEmpty(value)) {
-                // we start checking at the bottom
-                //if there are no more above then we can short circuit this column
-                continue;
+                currentVal = '';
+                countCurrentVal = 0;
             } else {
                 if (currentVal === value) {
                     countCurrentVal++;
@@ -92,22 +125,22 @@ const checkDiagonal = () => {
                     setWinner(currentVal);
                     return;
                 }
-
             }
             diag++;
         }
     }
-    // 2 bottom row going up right
-    for (let acrossIndex = 0; acrossIndex < 4; acrossIndex++) {
+};
+
+const checkDiagonalUpLeft = ({startAcross, endAcross, startDown, endDown}) => {
+    for (let acrossIndex = startAcross; acrossIndex > endAcross; acrossIndex--) {
         let currentVal = '';
         let countCurrentVal = 0;
         let diag = 0;
-        for (let downIndex = 4; downIndex > -1; downIndex--) {
-            const value = boardState[`${acrossIndex+diag}`][downIndex];
+        for (let downIndex = startDown; downIndex > endDown; downIndex--) {
+            const value = boardState[`${acrossIndex-diag}`][downIndex];
             if (_.isEmpty(value)) {
-                // we start checking at the bottom
-                //if there are no more above then we can short circuit this column
-                continue;
+                currentVal = '';
+                countCurrentVal = 0;
             } else {
                 if (currentVal === value) {
                     countCurrentVal++;
@@ -120,10 +153,35 @@ const checkDiagonal = () => {
                     setWinner(currentVal);
                     return;
                 }
-
             }
             diag++;
         }
+    }
+};
+
+const checkDiagonal = () => {
+    // bottom row going up right
+    const diagUpRightFromBottomResult = checkDiagonalUpRight({startAcross:0, endAcross:4, startDown:5, endDown:-1});
+    if (!_.isUndefined(diagUpRightFromBottomResult)) {
+        return;
+    }
+
+    // 2 bottom row going up right
+    const diagUpRight2Result = checkDiagonalUpRight({startAcross:0, endAcross:3, startDown:4, endDown:-1});
+    if (!_.isUndefined(diagUpRight2Result)) {
+        return;
+    }
+
+    // bottom row going up left
+    const diagUpLeftFromBottomResult = checkDiagonalUpLeft({startAcross:8, endAcross:4, startDown:5, endDown:-1});
+    if (!_.isUndefined(diagUpLeftFromBottomResult)) {
+        return;
+    }
+
+    // 2nd bottom row going up left
+    const diagUpLeftFrom2ndBottomResult = checkDiagonalUpLeft({startAcross:8, endAcross:5, startDown:4, endDown:-1});
+    if (!_.isUndefined(diagUpLeftFrom2ndBottomResult)) {
+        return;
     }
 };
 
@@ -132,7 +190,7 @@ const checkBoardStateForWin = () => {
     //check for vertical and horizontal runs of repeating characters
     checkVertical();
     checkHorizontal();
-    //this will never happen right? :-)
+    // check for diagonals
     checkDiagonal();
 };
 
@@ -142,32 +200,6 @@ const setWinner = (val) => {
     } else {
         currentPlayers.player2.isWinner = true;
     }
-};
-
-const addEvent = (name) => {
-    if (typeof events[`${name}`] === "undefined") {
-        events[`${name}`] = [];
-    }
-};
-
-const register = (event, subscriber) => {
-    if (typeof subscriber === "object" && typeof subscriber.notify === 'function') {
-        console.log('adding subscriber');
-        addEvent(event);
-        events[`${event}`].push(subscriber);
-    }
-};
-
-const notify = (event, data) => {
-    let notifyEvents = events[`${event}`];
-    for (let e in notifyEvents) {
-        notifyEvents[e].notify(data);
-    }
-};
-
-const currentPlayers = {
-    player1: {},
-    player2: {}
 };
 
 const newPlayersAllowed = () => {
@@ -194,7 +226,18 @@ const setNewPlayerName = (name) => {
     }
 };
 
+const validateColumnNum = (columnNum) => {
+    const parsedInt = parseInt(columnNum);
+    return (_.isNumber(parsedInt) && parsedInt <=9 && parsedInt >=1);
+};
+
 const makeMove = ({playerId, columnId}) => {
+    if (!validateColumnNum(columnId)) {
+        notify('change', {});
+        console.log(`Invalid column id detected: ${columnId}. Asking to enter again.`);
+        return;
+    }
+
     let valToMark = 'o';
     if (playerId === 1) {
         valToMark = 'x';
@@ -229,8 +272,14 @@ const makeMove = ({playerId, columnId}) => {
     notify('change', {});
 };
 
-const notifyAll = () => {
-    notify('change', {});
+const reset = () => {
+    for (let downIndex = 5; downIndex > -1; downIndex--) {
+        for (let acrossIndex = 0; acrossIndex < 9; acrossIndex++) {
+            boardState[`${acrossIndex}`][downIndex] = '';
+        }
+    }
+    currentPlayers.player1 = {};
+    currentPlayers.player2 = {};
 };
 
 exports.gameState = {
@@ -240,5 +289,6 @@ exports.gameState = {
     register,
     notifyAll,
     boardState,
-    currentPlayers
+    currentPlayers,
+    reset
 };
