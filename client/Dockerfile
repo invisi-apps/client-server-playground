@@ -11,4 +11,4 @@ RUN npm install
 # Bundle app source
 COPY . .
 
-CMD [ "npm", "start", "http://connect-server"]
+CMD [ "npm", "start", "connect-server", "3360"]

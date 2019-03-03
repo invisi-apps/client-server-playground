@@ -217,10 +217,9 @@ const setNewPlayerName = (name) => {
         } else {
             currentPlayers.player2 = {
                 playerName: name,
-                id: 2,
-                nextMove: false
+                id: 2
             };
-            currentPlayers.player1.nextMove = true;
+            setNextMoveStateForPlayerAfter(2);
             return currentPlayers.player2;
         }
     }
@@ -231,6 +230,30 @@ const validateColumnNum = (columnNum) => {
     return (_.isNumber(parsedInt) && parsedInt <=9 && parsedInt >=1);
 };
 
+const getNextMoveDetails = () => {
+    if (currentPlayers.player1.nextMove === true ) {
+        return {
+            playerId: currentPlayers.player1.id,
+            valToMark: 'x'
+        }
+    } else {
+        return {
+            playerId: currentPlayers.player2.id,
+            valToMark: 'o'
+        }
+    }
+};
+
+const setNextMoveStateForPlayerAfter = (playerId) => {
+    if (playerId === 1) {
+        currentPlayers.player1.nextMove = false;
+        currentPlayers.player2.nextMove = true;
+    } else {
+        currentPlayers.player1.nextMove = true;
+        currentPlayers.player2.nextMove = false;
+    }
+};
+
 const makeMove = ({playerId, columnId}) => {
     if (!validateColumnNum(columnId)) {
         notify('change', {});
@@ -238,14 +261,11 @@ const makeMove = ({playerId, columnId}) => {
         return;
     }
 
-    let valToMark = 'o';
-    if (playerId === 1) {
-        valToMark = 'x';
-        currentPlayers.player1.nextMove = false;
-        currentPlayers.player2.nextMove = true;
-    } else {
-        currentPlayers.player1.nextMove = true;
-        currentPlayers.player2.nextMove = false;
+    let nextMoveDetails = getNextMoveDetails();
+    if (nextMoveDetails.playerId !== playerId) {
+        notify('change', {});
+        console.log(`Received move request for invalid player ${playerId}`);
+        return;
     }
 
     const columnIndex = columnId - 1;
@@ -253,7 +273,7 @@ const makeMove = ({playerId, columnId}) => {
     for (let downIndex = 5; downIndex > -1; downIndex--) {
         const value = boardState[`${columnIndex}`][downIndex];
         if (_.isEmpty(value)) {
-            boardState[`${columnIndex}`][downIndex] = valToMark;
+            boardState[`${columnIndex}`][downIndex] = nextMoveDetails.valToMark;
             validMove = true;
             break;
         }
@@ -261,13 +281,9 @@ const makeMove = ({playerId, columnId}) => {
 
     if (validMove) {
         checkBoardStateForWin();
-        if (playerId === 1) {
-            currentPlayers.player1.nextMove = false;
-            currentPlayers.player2.nextMove = true;
-        } else {
-            currentPlayers.player1.nextMove = true;
-            currentPlayers.player2.nextMove = false;
-        }
+        setNextMoveStateForPlayerAfter(playerId);
+    } else {
+        console.log(`No valid move available for this request: playerId ${playerId}, columnId: ${columnId}`);
     }
     notify('change', {});
 };

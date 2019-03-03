@@ -1,6 +1,8 @@
 const expect = require('chai').expect;
 const _ = require('lodash');
 const gameState = require('../main/gameState').gameState;
+
+// NOTE - x and o positions in the test board grid may not be legal moves when used to fill columns for convenience
 describe('gameState', function() {
     beforeEach(function() {
         gameState.reset();
@@ -142,28 +144,52 @@ describe('gameState', function() {
                 expect(gameState.currentPlayers.player1.isWinner).to.eq(true);
             });
         });
+    });
 
-        describe('makeMove', function () {
-            describe('invalid column', function () {
-                it('should result in no change to game state', function () {
-                    gameState.boardState['0'][5] = 'x';
-                    const savedGameState = _.cloneDeep(gameState);
-                    gameState.makeMove({playerId: 1, columnId: 'a'});
-                    const newGameState = _.cloneDeep(gameState);
-                    expect(newGameState).to.deep.equal(savedGameState);
-                });
+    describe('makeMove', function () {
+        describe('specifying an invalid column', function () {
+            it('should result in no change to game state', function () {
+                gameState.boardState['0'][5] = 'x';
+                const savedGameState = _.cloneDeep(gameState);
+                gameState.makeMove({playerId: 1, columnId: 'a'});
+                const newGameState = _.cloneDeep(gameState);
+                expect(newGameState).to.deep.equal(savedGameState);
             });
-            describe('valid column', function () {
-                it('should result in change to game state', function () {
-                    gameState.setNewPlayerName('m');
-                    gameState.setNewPlayerName('j');
-                    gameState.boardState['0'][5] = 'o';
-                    const savedGameState = _.cloneDeep(gameState);
-                    gameState.makeMove({playerId: 1, columnId: '1'});
-                    const newGameState = _.cloneDeep(gameState);
-                    expect(newGameState).to.not.deep.equal(savedGameState);
-                    expect(gameState.boardState['0'][5]).to.equal('o');
-                });
+        });
+
+        describe('specifying a valid column', function () {
+            it('should result in change to game state', function () {
+                gameState.boardState['0'][5] = 'o';
+                const savedGameState = _.cloneDeep(gameState);
+                gameState.makeMove({playerId: 1, columnId: '1'});
+                const newGameState = _.cloneDeep(gameState);
+                expect(newGameState).to.not.deep.equal(savedGameState);
+                expect(gameState.boardState['0'][5]).to.equal('o');
+            });
+        });
+
+        describe('attempting an invalid player turn', function () {
+            it('should result in no change to game state', function () {
+                gameState.boardState['0'][5] = 'o';
+                const savedGameState = _.cloneDeep(gameState);
+                gameState.makeMove({playerId: 2, columnId: '1'});
+                const newGameState = _.cloneDeep(gameState);
+                expect(newGameState).to.deep.equal(savedGameState);
+            });
+        });
+
+        describe('adding an entry when a column is full', function () {
+            it('should result in no change to game state', function () {
+                gameState.boardState['0'][5] = 'o';
+                gameState.boardState['0'][4] = 'o';
+                gameState.boardState['0'][3] = 'o';
+                gameState.boardState['0'][2] = 'o';
+                gameState.boardState['0'][1] = 'o';
+                gameState.boardState['0'][0] = 'o';
+                const savedGameState = _.cloneDeep(gameState);
+                gameState.makeMove({playerId: 1, columnId: '1'});
+                const newGameState = _.cloneDeep(gameState);
+                expect(newGameState).to.deep.equal(savedGameState);
             });
         });
     });

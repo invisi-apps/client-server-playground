@@ -6,7 +6,8 @@ const gameLogic = require('./gameLogic').gameLogic;
 
 // First 2 args are the path to the node executable and the file you are executing
 const args = process.argv.slice(2);
-const serverURL = args[0] ? `${args[0]}:3360` : 'http://localhost:3360';
+let serverURL = args[0] ? `http://${args[0]}:` : 'http://localhost:';
+serverURL = args[1] ? serverURL += args[1] : serverURL += '3360';
 
 console.log(`Initiating socket connection to ${serverURL}`);
 
