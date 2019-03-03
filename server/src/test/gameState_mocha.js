@@ -10,6 +10,10 @@ describe('gameState', function() {
         gameState.setNewPlayerName('j');
     });
 
+    afterEach(function() {
+        gameState.reset();
+    });
+
     describe('winning gamestates', function () {
         describe('horizontals', function () {
             it('should find winning lines on bottom row for player 1', function () {

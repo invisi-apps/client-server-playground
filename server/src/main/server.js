@@ -1,3 +1,4 @@
+const _ = require('lodash');
 const app = require('express')();
 const http = require('http').Server(app);
 const io = require('socket.io')(http);
@@ -59,7 +60,7 @@ io.on('connection', function (socket) {
 
 // First 2 args are the path to the node executable and the file you are executing
 const args = process.argv.slice(2);
-const portToListenOn = args[0] ? args[0] : 3360;
+const portToListenOn = _.isNumber(args[0]) ? args[0] : 3360;
 
 
 require('dns').lookup(require('os').hostname(), function (err, add, fam) {
@@ -68,4 +69,7 @@ require('dns').lookup(require('os').hostname(), function (err, add, fam) {
 
 http.listen(portToListenOn, function () {
     console.log(`listening on *:${portToListenOn}`);
+    http.emit('app_started');
 });
+
+module.exports = http;

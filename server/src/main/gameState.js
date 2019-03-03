@@ -109,7 +109,7 @@ const checkDiagonalUpRight = ({startAcross, endAcross, startDown, endDown}) => {
         let countCurrentVal = 0;
         let diag = 0;
         for (let downIndex = startDown; downIndex > endDown; downIndex--) {
-            const value = boardState[`${acrossIndex+diag}`][downIndex];
+            const value = boardState[`${acrossIndex + diag}`][downIndex];
             if (_.isEmpty(value)) {
                 currentVal = '';
                 countCurrentVal = 0;
@@ -137,7 +137,7 @@ const checkDiagonalUpLeft = ({startAcross, endAcross, startDown, endDown}) => {
         let countCurrentVal = 0;
         let diag = 0;
         for (let downIndex = startDown; downIndex > endDown; downIndex--) {
-            const value = boardState[`${acrossIndex-diag}`][downIndex];
+            const value = boardState[`${acrossIndex - diag}`][downIndex];
             if (_.isEmpty(value)) {
                 currentVal = '';
                 countCurrentVal = 0;
@@ -161,25 +161,30 @@ const checkDiagonalUpLeft = ({startAcross, endAcross, startDown, endDown}) => {
 
 const checkDiagonal = () => {
     // bottom row going up right
-    const diagUpRightFromBottomResult = checkDiagonalUpRight({startAcross:0, endAcross:4, startDown:5, endDown:-1});
+    const diagUpRightFromBottomResult = checkDiagonalUpRight({startAcross: 0, endAcross: 4, startDown: 5, endDown: -1});
     if (!_.isUndefined(diagUpRightFromBottomResult)) {
         return;
     }
 
     // 2 bottom row going up right
-    const diagUpRight2Result = checkDiagonalUpRight({startAcross:0, endAcross:3, startDown:4, endDown:-1});
+    const diagUpRight2Result = checkDiagonalUpRight({startAcross: 0, endAcross: 3, startDown: 4, endDown: -1});
     if (!_.isUndefined(diagUpRight2Result)) {
         return;
     }
 
     // bottom row going up left
-    const diagUpLeftFromBottomResult = checkDiagonalUpLeft({startAcross:8, endAcross:4, startDown:5, endDown:-1});
+    const diagUpLeftFromBottomResult = checkDiagonalUpLeft({startAcross: 8, endAcross: 4, startDown: 5, endDown: -1});
     if (!_.isUndefined(diagUpLeftFromBottomResult)) {
         return;
     }
 
     // 2nd bottom row going up left
-    const diagUpLeftFrom2ndBottomResult = checkDiagonalUpLeft({startAcross:8, endAcross:5, startDown:4, endDown:-1});
+    const diagUpLeftFrom2ndBottomResult = checkDiagonalUpLeft({
+        startAcross: 8,
+        endAcross: 5,
+        startDown: 4,
+        endDown: -1
+    });
     if (!_.isUndefined(diagUpLeftFrom2ndBottomResult)) {
         return;
     }
@@ -227,11 +232,11 @@ const setNewPlayerName = (name) => {
 
 const validateColumnNum = (columnNum) => {
     const parsedInt = parseInt(columnNum);
-    return (_.isNumber(parsedInt) && parsedInt <=9 && parsedInt >=1);
+    return (_.isNumber(parsedInt) && parsedInt <= 9 && parsedInt >= 1);
 };
 
 const getNextMoveDetails = () => {
-    if (currentPlayers.player1.nextMove === true ) {
+    if (currentPlayers.player1.nextMove === true) {
         return {
             playerId: currentPlayers.player1.id,
             valToMark: 'x'

@@ -2,7 +2,13 @@
 
 Intended as a very simple game of connect 5 implemented using websockets, written in nodejs and deployed as docker containers.
 
-The project is split into the server portion which is responsible for game state and a client portion which is primarily concerned with gathering user input and displaying information form the server.
+The project is split into the server portion which is responsible for game state and a client portion which is primarily concerned with gathering user input and displaying information form the server. 
+
+I've used a simple object to store the game information serverside. I've made it observable so that I could watch for changes in each websocket handler and inform the clients on every change.
+
+The approach to storing the boardstate and searching for winning combinations is deliberately verbose. Speed in this case is more than adequete even using the brute force approach to finding winning combinations. Optimisations around knowing how many pieces exist and searching common combinations first would be part of version 2.
+
+I've included unit tests for most of the utility functions and an integration test for the server. Its not complete but I hope that you can see the traits you are looking for from the ones I've included.
 
 
 
@@ -25,11 +31,11 @@ You should follow the steps to get up and going in the Running section below. If
 
 
 
-## Running
+## Running in docker
 
 To get up and going you need to have docker installed. I've been using 18.03.0-ce, build 0520e24.
 
-I've included utility scripts for building the docker images and some run scripts i've been using to work out the pipes needed to get comms channels open and stable. This is not production quality just yet and its intended as a mimimum viable approach to the game.
+I've included utility scripts for building the docker images and some run scripts i've been using to work out the pipes needed to get comms channels open and stable. It runs on a dedicated docker network so make sure to run all the scripts. This is not production quality just yet and its intended as a mimimum viable approach to the game.
 
 To see it in action you should follow these steps. 
 
@@ -54,7 +60,8 @@ cd client
 
 
 ## Developer setup
-The client/server portions of this game are a pair of nodejs applications. To be able to work on this project you will need to have a node development environment setup. 
+
+The client/server portions of this game are a pair of nodejs applications. To be able to work on this project you will need to have a node development environment setup. This project has been built and tested locally against node version ```10.15.1```. 
 
 ### Running server and clients in node locally
 Server
@@ -92,6 +99,8 @@ By default the client will attempt to connect to http://localhost:3360
 
 ### Testing
 Unit test in the project are written using [mocha](https://next.mochajs.org/) with [chai](https://www.chaijs.com/api/bdd/) assertions and are intended to cover the core game change state management.
+
+I've included one integration style test for the server which spins up a local server and connects 2 clients to it. 
 
 To run the tests you can use the following commands:
 ```
