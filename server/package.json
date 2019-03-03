@@ -1,0 +1,20 @@
+{
+  "name": "connect-game-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/main/server.js",
+  "scripts": {
+    "start": "node src/main/server.js",
+    "test": "./node_modules/.bin/mocha ./src/test/ --exit"
+  },
+  "author": "msiggins",
+  "license": "ISC",
+  "dependencies": {
+    "chai": "^4.2.0",
+    "express": "^4.15.2",
+    "lodash": "^4.17.11",
+    "mocha": "^6.0.2",
+    "socket.io": "^2.2.0",
+    "socket.io-client": "^2.2.0"
+  }
+}
